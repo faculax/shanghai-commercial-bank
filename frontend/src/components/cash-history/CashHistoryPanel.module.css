@@ -1,0 +1,98 @@
+.cash-history-container {
+  background-color: #1f2937;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  padding: 1.5rem;
+  color: #e5e7eb;
+}
+
+.cash-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.cash-history-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 0.375rem 0.75rem;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refresh-button:hover {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+
+.refresh-icon {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cash-history-table {
+  width: 100%;
+  min-width: 650px; /* Ensure table has minimum width to prevent squeezing */
+  border-collapse: collapse;
+}
+
+.cash-history-table th,
+.cash-history-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #374151;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.cash-history-table th {
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.cash-history-table tbody tr:hover {
+  background-color: rgba(55, 65, 81, 0.3);
+}
+
+.positive {
+  color: #10b981;
+}
+
+.negative {
+  color: #ef4444;
+}
+
+.empty-message {
+  text-align: center;
+  color: #9ca3af;
+  padding: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .cash-history-table {
+    font-size: 14px;
+  }
+  
+  .cash-history-table th,
+  .cash-history-table td {
+    padding: 8px;
+  }
+}

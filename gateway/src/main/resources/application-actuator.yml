@@ -1,0 +1,11 @@
+# Spring Boot Actuator for Gateway
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true

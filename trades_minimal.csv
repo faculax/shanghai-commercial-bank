@@ -1,0 +1,4 @@
+trade_id,currency_pair,side,quantity,price,trade_date,counterparty,book
+T001,EUR/USD,BUY,1000000,1.0850,2024-11-18,Goldman Sachs,FX_SPOT_DESK
+T002,EUR/USD,SELL,750000,1.0865,2024-11-18,JP Morgan,FX_SPOT_DESK
+T003,GBP/JPY,BUY,500000,188.50,2024-11-18,HSBC London,ASIA_FX_BOOK

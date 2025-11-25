@@ -1,0 +1,131 @@
+/* Update NAV panel styling to match other panels */
+.panel {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: #e5e7eb;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.content {
+  font-size: 0.9rem;
+}
+
+.latest {
+  margin-bottom: 1.25rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: #9ca3af;
+}
+
+.value {
+  font-weight: 500;
+}
+
+.history {
+  margin-top: 1rem;
+}
+
+.history h4 {
+  color: #10b981;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 320px; /* Height for ~10 items (32px per item) */
+  overflow-y: auto;
+}
+
+/* Style scrollbar for dark theme */
+.list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.2);
+  border-radius: 3px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.list::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+.empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 1.5rem 0;
+  font-style: italic;
+}
+
+.error {
+  background-color: rgba(239,68,68,0.1);
+  color: rgb(248,113,113);
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.listItem {
+  display: flex;
+  flex-direction: row; /* Ensure items are in a row */
+  justify-content: space-between; /* Space between date and value */
+  align-items: center; /* Vertically center */
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+}
+
+.histDate {
+  color: #9ca3af; /* Light gray for date */
+  margin-right: 1rem; /* Space between date and value */
+}
+
+.histValue {
+  font-weight: 500; /* Make values slightly bold */
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.positive {
+  color: #10b981;
+}
+
+.negative {
+  color: #ef4444;
+}

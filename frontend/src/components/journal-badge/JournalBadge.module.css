@@ -1,0 +1,35 @@
+.journal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.journal-badge-trade {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.journal-badge-settled {
+  background-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.journal-badge-none {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+  border: 1px solid #9ca3af;
+}
+
+.journal-badge:hover {
+  transform: scale(1.05);
+}

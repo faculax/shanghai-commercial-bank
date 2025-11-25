@@ -1,0 +1,8 @@
+{
+  "buildTime": "BUILD_TIME_PLACEHOLDER",
+  "buildTimestamp": "BUILD_TIMESTAMP_PLACEHOLDER",
+  "version": "VERSION_PLACEHOLDER",
+  "environment": "ENVIRONMENT_PLACEHOLDER",
+  "apiBaseUrl": "API_BASE_URL_PLACEHOLDER",
+  "service": "fxtrading-frontend"
+}

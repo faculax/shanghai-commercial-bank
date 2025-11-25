@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  body {
+    @apply bg-fd-dark text-fd-text font-sans min-h-screen;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-fd-text;
+  }
+
+  a {
+    @apply text-fd-green hover:text-fd-green-hover transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* Form Controls */
+  .form-input {
+    @apply bg-fd-input text-fd-text border border-fd-border focus:border-fd-green focus:ring-fd-green focus:ring-1 rounded-md px-3 py-2 transition-colors duration-200;
+  }
+
+  .form-select {
+    @apply bg-fd-input text-fd-text border border-fd-border focus:border-fd-green focus:ring-fd-green focus:ring-1 rounded-md px-3 py-2 transition-colors duration-200;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-fd-text mb-1;
+  }
+
+  .form-group {
+    @apply space-y-1;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-fd-dark px-4 py-2 text-sm;
+  }
+
+  .btn-primary {
+    @apply bg-fd-green text-fd-dark hover:bg-fd-green-hover focus:ring-fd-green shadow-fd;
+  }
+
+  .btn-secondary {
+    @apply bg-fd-darker text-fd-text hover:bg-fd-border focus:ring-fd-border shadow-fd;
+  }
+
+  .btn-outline {
+    @apply border border-fd-border text-fd-text bg-transparent hover:bg-fd-darker focus:ring-fd-green;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-fd-darker rounded-lg shadow-fd border border-fd-border;
+  }
+
+  .card-header {
+    @apply bg-fd-dark px-6 py-4 border-b border-fd-border rounded-t-lg;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  /* Navigation */
+  .nav-tabs {
+    @apply flex border-b border-fd-border space-x-8;
+  }
+
+  .nav-tab {
+    @apply py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200;
+  }
+
+  .nav-tab.active {
+    @apply border-fd-green text-fd-green;
+  }
+
+  .nav-tab.inactive {
+    @apply border-transparent text-fd-text-muted hover:text-fd-text hover:border-fd-border;
+  }
+
+  /* Tables */
+  .table {
+    @apply min-w-full divide-y divide-fd-border;
+  }
+
+  .table-header {
+    @apply bg-fd-dark;
+  }
+
+  .table-header th {
+    @apply px-6 py-3 text-left text-xs font-medium text-fd-text-muted uppercase tracking-wider;
+  }
+
+  .table-body {
+    @apply bg-fd-darker divide-y divide-fd-border;
+  }
+
+  .table-body tr:hover {
+    @apply bg-fd-dark;
+  }
+
+  .table-body td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-fd-text;
+  }
+
+  /* Status badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-pending {
+    @apply bg-yellow-900 text-yellow-200;
+  }
+
+  .badge-confirmed {
+    @apply bg-green-900 text-green-200;
+  }
+
+  .badge-cancelled {
+    @apply bg-red-900 text-red-200;
+  }
+
+  .badge-settled {
+    @apply bg-fd-green bg-opacity-20 text-fd-green;
+  }
+
+  /* Layout utilities */
+  .container {
+    @apply w-full mx-auto px-2 sm:px-4;
+  }
+
+  .container-full {
+    @apply w-full;
+  }
+
+  .container-constrained {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section {
+    @apply py-4;
+  }
+
+  .section-tight {
+    @apply py-2;
+  }
+
+  /* Toast animations */
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+}

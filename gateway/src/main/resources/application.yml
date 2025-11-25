@@ -1,0 +1,72 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: vibe-gateway
+  profiles:
+    include: actuator
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: 
+              - "http://localhost:3000"
+              - "https://fund-smith.onrender.com"
+            # Cannot use "*" with allow-credentials: true
+            allowed-methods: 
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers: "*"
+            exposed-headers:
+              - "Authorization"
+              - "Content-Type"
+            allow-credentials: false
+            max-age: 3600
+      routes:
+        # Route market data requests to the market data service
+        - id: market-data-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/rates/**
+          filters:
+            - StripPrefix=0 # Keep the /api prefix when forwarding
+
+        # Route all other /api/* requests to the backend service
+        - id: backend-service
+          uri: ${BACKEND_URI:http://localhost:8080}
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=0 # Keep the /api prefix when forwarding
+
+        # Health check route
+        - id: backend-health
+          uri: http://localhost:8080
+          predicates:
+            - Path=/actuator/**
+          filters:
+            - StripPrefix=0
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.cors: DEBUG
+    org.springframework.web.reactive: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
