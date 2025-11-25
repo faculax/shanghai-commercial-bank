@@ -137,4 +137,58 @@ export const tradeImportService = {
 
     return response.blob();
   },
+
+  async clearAllConsolidatedImports(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/imports/consolidated/clear-all`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear all consolidated imports');
+    }
+  },
+
+  async generateMXMLForAllConsolidated(): Promise<TradeImport[]> {
+    const response = await fetch(`${API_BASE_URL}/imports/consolidated/generate-mxml-all`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate MXML for all consolidated imports');
+    }
+
+    return response.json();
+  },
+
+  async pushAllToMurex(): Promise<TradeImport[]> {
+    const response = await fetch(`${API_BASE_URL}/imports/mxml/push-all-to-murex`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to push all MXML imports to Murex');
+    }
+
+    return response.json();
+  },
+
+  async clearAllMXMLImports(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/imports/mxml/clear-all`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear all MXML imports');
+    }
+  },
+
+  async clearAllMurexImports(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/imports/murex/clear-all`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear all Murex imports');
+    }
+  },
 };

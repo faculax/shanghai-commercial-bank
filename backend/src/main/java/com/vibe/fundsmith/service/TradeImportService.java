@@ -536,4 +536,113 @@ public class TradeImportService {
                 .createdAt(file.getCreatedAt())
                 .build();
     }
+    
+    @Transactional
+    public void clearAllConsolidatedImports() {
+        List<TradeImport> consolidatedImports = tradeImportRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .filter(ti -> ti.getStatus() == TradeImport.ImportStatus.CONSOLIDATED)
+                .collect(Collectors.toList());
+        
+        log.info("Clearing {} consolidated imports", consolidatedImports.size());
+        
+        for (TradeImport tradeImport : consolidatedImports) {
+            // Delete associated trades
+            List<Trade> trades = tradeRepository.findByTradeImportId(tradeImport.getId());
+            tradeRepository.deleteAll(trades);
+            
+            // Delete the import
+            tradeImportRepository.delete(tradeImport);
+        }
+        
+        log.info("Cleared all consolidated imports successfully");
+    }
+    
+    @Transactional
+    public List<TradeImportDto> generateMXMLForAllConsolidated() {
+        List<TradeImport> consolidatedImports = tradeImportRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .filter(ti -> ti.getStatus() == TradeImport.ImportStatus.CONSOLIDATED)
+                .collect(Collectors.toList());
+        
+        log.info("Generating MXML for {} consolidated imports", consolidatedImports.size());
+        
+        List<TradeImportDto> results = new ArrayList<>();
+        
+        for (TradeImport tradeImport : consolidatedImports) {
+            try {
+                TradeImportDto result = generateMXML(tradeImport.getId());
+                results.add(result);
+            } catch (Exception e) {
+                log.error("Failed to generate MXML for import {}: {}", tradeImport.getId(), e.getMessage());
+            }
+        }
+        
+        log.info("Generated MXML for {} out of {} consolidated imports", results.size(), consolidatedImports.size());
+        return results;
+    }
+    
+    @Transactional
+    public List<TradeImportDto> pushAllToMurex() {
+        List<TradeImport> mxmlImports = tradeImportRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .filter(ti -> ti.getStatus() == TradeImport.ImportStatus.MXML_GENERATED)
+                .collect(Collectors.toList());
+        
+        log.info("Pushing {} MXML imports to Murex", mxmlImports.size());
+        
+        List<TradeImportDto> results = new ArrayList<>();
+        
+        for (TradeImport tradeImport : mxmlImports) {
+            try {
+                TradeImportDto result = pushToMurex(tradeImport.getId());
+                results.add(result);
+            } catch (Exception e) {
+                log.error("Failed to push import {} to Murex: {}", tradeImport.getId(), e.getMessage());
+            }
+        }
+        
+        log.info("Pushed {} out of {} MXML imports to Murex", results.size(), mxmlImports.size());
+        return results;
+    }
+    
+    @Transactional
+    public void clearAllMXMLImports() {
+        List<TradeImport> mxmlImports = tradeImportRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .filter(ti -> ti.getStatus() == TradeImport.ImportStatus.MXML_GENERATED)
+                .collect(Collectors.toList());
+        
+        log.info("Clearing {} MXML imports", mxmlImports.size());
+        
+        for (TradeImport tradeImport : mxmlImports) {
+            try {
+                deleteImport(tradeImport.getId());
+            } catch (Exception e) {
+                log.error("Failed to delete MXML import {}: {}", tradeImport.getId(), e.getMessage());
+            }
+        }
+        
+        log.info("Cleared all MXML imports");
+    }
+    
+    @Transactional
+    public void clearAllMurexImports() {
+        List<TradeImport> murexImports = tradeImportRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .filter(ti -> ti.getStatus() == TradeImport.ImportStatus.PUSHED_TO_MUREX)
+                .collect(Collectors.toList());
+        
+        log.info("Clearing {} Murex imports", murexImports.size());
+        
+        for (TradeImport tradeImport : murexImports) {
+            try {
+                deleteImport(tradeImport.getId());
+            } catch (Exception e) {
+                log.error("Failed to delete Murex import {}: {}", tradeImport.getId(), e.getMessage());
+            }
+        }
+        
+        log.info("Cleared all Murex imports");
+    }
 }

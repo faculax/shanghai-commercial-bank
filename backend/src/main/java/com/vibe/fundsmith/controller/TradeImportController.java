@@ -117,4 +117,39 @@ public class TradeImportController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(zipContent);
     }
+    
+    @DeleteMapping("/consolidated/clear-all")
+    public ResponseEntity<Void> clearAllConsolidatedImports() {
+        log.info("Clearing all consolidated imports");
+        tradeImportService.clearAllConsolidatedImports();
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping("/consolidated/generate-mxml-all")
+    public ResponseEntity<List<TradeImportDto>> generateMXMLForAllConsolidated() {
+        log.info("Generating MXML for all consolidated imports");
+        List<TradeImportDto> results = tradeImportService.generateMXMLForAllConsolidated();
+        return ResponseEntity.ok(results);
+    }
+    
+    @PostMapping("/mxml/push-all-to-murex")
+    public ResponseEntity<List<TradeImportDto>> pushAllToMurex() {
+        log.info("Pushing all MXML imports to Murex");
+        List<TradeImportDto> results = tradeImportService.pushAllToMurex();
+        return ResponseEntity.ok(results);
+    }
+    
+    @DeleteMapping("/mxml/clear-all")
+    public ResponseEntity<Void> clearAllMXMLImports() {
+        log.info("Clearing all MXML imports");
+        tradeImportService.clearAllMXMLImports();
+        return ResponseEntity.ok().build();
+    }
+    
+    @DeleteMapping("/murex/clear-all")
+    public ResponseEntity<Void> clearAllMurexImports() {
+        log.info("Clearing all Murex imports");
+        tradeImportService.clearAllMurexImports();
+        return ResponseEntity.ok().build();
+    }
 }

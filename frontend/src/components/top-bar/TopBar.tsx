@@ -1,8 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { DemoConfigModal } from '../DemoConfigModal';
+import { DemoConfig } from '../../types/liveTrade';
+import { liveTradeService } from '../../services/liveTradeService';
 
 export const TopBar: React.FC = () => {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [demoConfig, setDemoConfig] = useState<DemoConfig>({
+    enabled: false,
+    tradesPerSecond: 2.0,
+    groupingIntervalSeconds: 10,
+    autoMxmlEnabled: false,
+    mxmlGenerationIntervalSeconds: 20,
+  });
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load demo config on mount
+  useEffect(() => {
+    const loadDemoConfig = async () => {
+      try {
+        const config = await liveTradeService.getDemoConfig();
+        setDemoConfig(config);
+      } catch (error) {
+        console.error('Failed to load demo config:', error);
+      }
+    };
+    loadDemoConfig();
+  }, []);
 
   // Handle clicking outside the dropdown to close it
   useEffect(() => {
@@ -20,6 +44,20 @@ export const TopBar: React.FC = () => {
 
   const toggleAdminMenu = () => {
     setIsAdminMenuOpen(!isAdminMenuOpen);
+  };
+
+  const handleOpenConfig = () => {
+    setIsConfigModalOpen(true);
+    setIsAdminMenuOpen(false);
+  };
+
+  const handleSaveConfig = async (config: DemoConfig) => {
+    try {
+      const updatedConfig = await liveTradeService.updateDemoConfig(config);
+      setDemoConfig(updatedConfig);
+    } catch (error) {
+      console.error('Failed to update demo config:', error);
+    }
   };
 
   return (
@@ -49,13 +87,26 @@ export const TopBar: React.FC = () => {
           
           {isAdminMenuOpen && (
             <div className="absolute right-0 mt-2 w-64 py-2 bg-fd-darker rounded-md shadow-fd border border-fd-border z-10">
-              <div className="px-4 py-3 text-center text-fd-text-muted text-sm">
-                No admin actions available
-              </div>
+              <button
+                onClick={handleOpenConfig}
+                className="w-full px-4 py-2 text-left text-fd-text hover:bg-fd-dark flex items-center justify-between"
+              >
+                <span>Demo Configuration</span>
+                <span className={`w-2 h-2 rounded-full ${
+                  demoConfig.enabled ? 'bg-fd-green' : 'bg-fd-text-muted'
+                }`}></span>
+              </button>
             </div>
           )}
         </div>
       </div>
+      
+      <DemoConfigModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        onSave={handleSaveConfig}
+        initialConfig={demoConfig}
+      />
     </nav>
   );
 };
