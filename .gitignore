@@ -1,0 +1,6 @@
+# Dependency directories
+frontend/node_modules/
+# Backend and gateway build targets
+backend/target/
+gateway/target/
+
