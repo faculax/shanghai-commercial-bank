@@ -18,6 +18,12 @@ interface Stats {
   total: number;
 }
 
+interface ConsolidationMetrics {
+  last2Rate: number;
+  last10Rate: number;
+  allTimeRate: number;
+}
+
 export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRefresh }) => {
   const [stats, setStats] = useState<Stats>({
     imported: 0,
@@ -27,6 +33,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
     pendingTrades: 0,
     total: 0,
   });
+  const [consolidationMetrics, setConsolidationMetrics] = useState<ConsolidationMetrics>({
+    last2Rate: 0,
+    last10Rate: 0,
+    allTimeRate: 0,
+  });
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   const calculateStats = async () => {
@@ -35,6 +46,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
     const mxmlGenerated = imports.filter(imp => imp.status === 'MXML_GENERATED').length;
     const pushedToMurex = imports.filter(imp => imp.status === 'PUSHED_TO_MUREX').length;
     const total = imports.length;
+    
+    // Calculate consolidation metrics
+    const consolidatedImports = imports.filter(imp => 
+      imp.status === 'CONSOLIDATED' || 
+      imp.status === 'MXML_GENERATED' || 
+      imp.status === 'PUSHED_TO_MUREX'
+    ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    const calculateConsolidationRate = (importsSubset: typeof consolidatedImports) => {
+      let totalOriginal = 0;
+      let totalConsolidated = 0;
+      
+      importsSubset.forEach(imp => {
+        totalOriginal += imp.originalTradeCount;
+        totalConsolidated += imp.currentTradeCount;
+      });
+      
+      return totalOriginal > 0 ? Math.round((totalConsolidated / totalOriginal) * 100) : 0;
+    };
+    
+    const last2Rate = calculateConsolidationRate(consolidatedImports.slice(0, 2));
+    const last10Rate = calculateConsolidationRate(consolidatedImports.slice(0, 10));
+    const allTimeRate = calculateConsolidationRate(consolidatedImports);
     
     let pendingTrades = 0;
     try {
@@ -51,6 +85,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
       pendingTrades,
       total,
     });
+    
+    setConsolidationMetrics({
+      last2Rate,
+      last10Rate,
+      allTimeRate,
+    });
+    
     setLastUpdate(new Date());
   };
 
@@ -112,6 +153,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
       case 'pending': return 'text-orange-400';
       default: return 'text-fd-text';
     }
+  };
+
+  const getConsolidationRateColor = (rate: number) => {
+    if (rate <= 30) return 'text-fd-green';    // Very good consolidation
+    if (rate <= 60) return 'text-yellow-400'; // Moderate consolidation
+    return 'text-red-400';                     // Poor consolidation
   };
 
   return (
@@ -200,6 +247,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
           description="Processing complete"
           trend={demoConfig.autoMurexEnabled ? 'up' : 'stable'}
         />
+      </div>
+
+      {/* Consolidation Metrics */}
+      <div className="bg-fd-darker rounded-lg border border-fd-border p-6">
+        <h3 className="text-lg font-semibold text-fd-text mb-4">Consolidation Rate Analysis</h3>
+        <p className="text-fd-text-muted text-sm mb-4">Lower percentages indicate better consolidation (fewer trades to process downstream)</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard
+            title="Last 2 Consolidations"
+            value={consolidationMetrics.last2Rate}
+            color={getConsolidationRateColor(consolidationMetrics.last2Rate)}
+            description={`${consolidationMetrics.last2Rate}% remaining trades`}
+          />
+          <StatCard
+            title="Last 10 Consolidations"
+            value={consolidationMetrics.last10Rate}
+            color={getConsolidationRateColor(consolidationMetrics.last10Rate)}
+            description={`${consolidationMetrics.last10Rate}% remaining trades`}
+          />
+          <StatCard
+            title="All-Time Average"
+            value={consolidationMetrics.allTimeRate}
+            color={getConsolidationRateColor(consolidationMetrics.allTimeRate)}
+            description={`${consolidationMetrics.allTimeRate}% remaining trades`}
+          />
+        </div>
       </div>
 
       {/* Pipeline Flow Visualization */}
