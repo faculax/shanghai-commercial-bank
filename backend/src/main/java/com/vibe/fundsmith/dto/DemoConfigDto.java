@@ -15,4 +15,6 @@ public class DemoConfigDto {
     private int groupingIntervalSeconds;
     private boolean autoMxmlEnabled;
     private int mxmlGenerationIntervalSeconds;
+    private boolean autoMurexEnabled;
+    private int murexPushIntervalSeconds;
 }

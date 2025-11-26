@@ -15,4 +15,6 @@ export interface DemoConfig {
   groupingIntervalSeconds: number;
   autoMxmlEnabled: boolean;
   mxmlGenerationIntervalSeconds: number;
+  autoMurexEnabled: boolean;
+  murexPushIntervalSeconds: number;
 }

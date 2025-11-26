@@ -51,7 +51,7 @@ export const Toast: React.FC<ToastProps> = ({
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 animate-slide-in">
+    <div className="fixed bottom-4 right-4 z-50 animate-slide-in">
       <div className={`border rounded-lg p-4 shadow-fd flex items-center gap-3 min-w-80 max-w-96 ${getTypeStyles()}`}>
         <span className="text-lg font-semibold">{getIcon()}</span>
         <p className="flex-1 text-sm font-medium">{message}</p>

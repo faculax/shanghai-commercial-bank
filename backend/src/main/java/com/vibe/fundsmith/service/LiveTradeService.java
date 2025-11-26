@@ -41,11 +41,14 @@ public class LiveTradeService {
             .groupingIntervalSeconds(10)
             .autoMxmlEnabled(false)
             .mxmlGenerationIntervalSeconds(20)
+            .autoMurexEnabled(false)
+            .murexPushIntervalSeconds(30)
             .build();
     
     private ScheduledFuture<?> demoTradeTask;
     private ScheduledFuture<?> groupingTask;
     private ScheduledFuture<?> mxmlTask;
+    private ScheduledFuture<?> murexTask;
     
     public DemoConfigDto getDemoConfig() {
         return demoConfig;
@@ -64,10 +67,14 @@ public class LiveTradeService {
             if (config.isAutoMxmlEnabled()) {
                 startMxmlTask();
             }
+            if (config.isAutoMurexEnabled()) {
+                startMurexTask();
+            }
         }
         
-        log.info("Demo config updated: enabled={}, tradesPerSecond={}, groupingIntervalSeconds={}", 
-                config.isEnabled(), config.getTradesPerSecond(), config.getGroupingIntervalSeconds());
+        log.info("Demo config updated: enabled={}, tradesPerSecond={}, groupingIntervalSeconds={}, autoMxmlEnabled={}, autoMurexEnabled={}", 
+                config.isEnabled(), config.getTradesPerSecond(), config.getGroupingIntervalSeconds(), 
+                config.isAutoMxmlEnabled(), config.isAutoMurexEnabled());
         
         return this.demoConfig;
     }
@@ -242,6 +249,10 @@ public class LiveTradeService {
             mxmlTask.cancel(false);
             mxmlTask = null;
         }
+        if (murexTask != null) {
+            murexTask.cancel(false);
+            murexTask = null;
+        }
     }
     
     private void generateDemoTrade() {
@@ -287,6 +298,30 @@ public class LiveTradeService {
             }
         } catch (Exception e) {
             log.error("Failed to auto-generate MXML: {}", e.getMessage());
+        }
+    }
+    
+    private void startMurexTask() {
+        if (murexTask != null) {
+            murexTask.cancel(false);
+        }
+        
+        murexTask = taskScheduler.scheduleWithFixedDelay(
+                this::autoProcessMurex,
+                demoConfig.getMurexPushIntervalSeconds() * 1000L
+        );
+        
+        log.info("Started auto Murex push with {} second intervals", demoConfig.getMurexPushIntervalSeconds());
+    }
+    
+    private void autoProcessMurex() {
+        try {
+            List<TradeImportDto> results = tradeImportService.pushAllToMurex();
+            if (!results.isEmpty()) {
+                log.info("Auto-pushed {} MXML imports to Murex", results.size());
+            }
+        } catch (Exception e) {
+            log.error("Failed to auto-push to Murex: {}", e.getMessage());
         }
     }
 }

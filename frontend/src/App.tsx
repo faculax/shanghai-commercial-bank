@@ -21,19 +21,23 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'imports' | 'consolidated' | 'mxml' | 'murex'>('dashboard');
-  const [importsSubTab, setImportsSubTab] = useState<'csv' | 'live'>('csv');
+  const [importsSubTab, setImportsSubTab] = useState<'csv' | 'live'>('live');
   const [pendingTradeCount, setPendingTradeCount] = useState(0);
   const [liveTradeRefreshTrigger, setLiveTradeRefreshTrigger] = useState(0);
   const [newImportIds, setNewImportIds] = useState<Set<number>>(new Set());
   const [newMxmlImportIds, setNewMxmlImportIds] = useState<Set<number>>(new Set());
+  const [newMurexImportIds, setNewMurexImportIds] = useState<Set<number>>(new Set());
   const [previousConsolidatedIds, setPreviousConsolidatedIds] = useState<Set<number>>(new Set());
   const [previousMxmlIds, setPreviousMxmlIds] = useState<Set<number>>(new Set());
+  const [previousMurexIds, setPreviousMurexIds] = useState<Set<number>>(new Set());
   const [demoConfig, setDemoConfig] = useState<DemoConfig>({
     enabled: false,
     tradesPerSecond: 2.0,
     groupingIntervalSeconds: 10,
     autoMxmlEnabled: false,
     mxmlGenerationIntervalSeconds: 20,
+    autoMurexEnabled: false,
+    murexPushIntervalSeconds: 30,
   });
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('info');
@@ -93,6 +97,17 @@ function App() {
       const interval = setInterval(() => {
         loadImports();
         // This will trigger the effect below to detect new MXML imports
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-refresh Murex tab every 3 seconds when active
+  useEffect(() => {
+    if (activeTab === 'murex') {
+      const interval = setInterval(() => {
+        loadImports();
+        // This will trigger the effect below to detect new Murex imports
       }, 3000);
       return () => clearInterval(interval);
     }
@@ -183,6 +198,45 @@ function App() {
     // Update the tracking sets
     setPreviousMxmlIds(currentMxmlIds);
   }, [imports, previousMxmlIds]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Detect new Murex imports and add flash effect
+  useEffect(() => {
+    const murexImports = imports.filter(imp => imp.status === 'PUSHED_TO_MUREX');
+    const currentMurexIds = new Set(murexImports.map(imp => imp.id));
+    
+    // Find genuinely new Murex imports
+    const newMurexIds = new Set([...currentMurexIds].filter(id => !previousMurexIds.has(id)));
+    
+    if (newMurexIds.size > 0 && previousMurexIds.size > 0) { // Don't trigger on initial load
+      // Check if these are truly new (created recently)
+      const recentNewMurexIds = new Set([...newMurexIds].filter(id => {
+        const importItem = murexImports.find(imp => imp.id === id);
+        if (importItem) {
+          const importDate = new Date(importItem.createdAt);
+          const now = new Date();
+          // Consider it new if created within the last 30 seconds
+          return (now.getTime() - importDate.getTime()) < 30000;
+        }
+        return false;
+      }));
+      
+      if (recentNewMurexIds.size > 0) {
+        setNewMurexImportIds(recentNewMurexIds);
+        
+        // Show message for new Murex push
+        const message = `🚀 ${recentNewMurexIds.size} new import${recentNewMurexIds.size > 1 ? 's' : ''} pushed to Murex!`;
+        showToast(message, 'success');
+        
+        // Remove flash effect after 4 seconds
+        setTimeout(() => {
+          setNewMurexImportIds(new Set());
+        }, 4000);
+      }
+    }
+    
+    // Update the tracking sets
+    setPreviousMurexIds(currentMurexIds);
+  }, [imports, previousMurexIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = (message: string, type: 'success' | 'error' | 'info') => {
     setToastMessage(message);
@@ -506,16 +560,6 @@ function App() {
             <div className="flex border-b border-fd-border mb-4">
               <button
                 className={`px-4 py-2 text-sm font-medium border-b-2 ${
-                  importsSubTab === 'csv'
-                    ? 'border-fd-green text-fd-green'
-                    : 'border-transparent text-fd-text-muted hover:text-fd-text'
-                }`}
-                onClick={() => setImportsSubTab('csv')}
-              >
-                CSV Imports
-              </button>
-              <button
-                className={`px-4 py-2 text-sm font-medium border-b-2 ${
                   importsSubTab === 'live'
                     ? 'border-fd-green text-fd-green'
                     : 'border-transparent text-fd-text-muted hover:text-fd-text'
@@ -523,6 +567,16 @@ function App() {
                 onClick={() => setImportsSubTab('live')}
               >
                 Live Trades {pendingTradeCount > 0 && `(${pendingTradeCount} pending)`}
+              </button>
+              <button
+                className={`px-4 py-2 text-sm font-medium border-b-2 ${
+                  importsSubTab === 'csv'
+                    ? 'border-fd-green text-fd-green'
+                    : 'border-transparent text-fd-text-muted hover:text-fd-text'
+                }`}
+                onClick={() => setImportsSubTab('csv')}
+              >
+                CSV Imports
               </button>
             </div>
 
@@ -648,6 +702,9 @@ function App() {
               <div className="flex items-center space-x-2">
                 <span className="w-3 h-3 bg-fd-green rounded-full animate-pulse"></span>
                 <span className="text-fd-text text-sm">Live monitoring active</span>
+                <span className="text-fd-text-muted text-xs">
+                  - watching for automatic MXML generation
+                </span>
               </div>
               <div className="text-fd-text-muted text-xs">
                 Auto-refreshing every 3 seconds • New entries highlighted
@@ -656,15 +713,15 @@ function App() {
           </div>
         )}
 
-        {/* Real-time activity indicator for MXML tab */}
-        {activeTab === 'mxml' && (
+        {/* Real-time activity indicator for Murex tab */}
+        {activeTab === 'murex' && (
           <div className="mb-4 p-4 bg-fd-darker border border-fd-border rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="w-3 h-3 bg-fd-green rounded-full animate-pulse"></span>
                 <span className="text-fd-text text-sm">Live monitoring active</span>
                 <span className="text-fd-text-muted text-xs">
-                  - watching for automatic MXML generation
+                  - watching for automatic Murex pushes
                 </span>
               </div>
               <div className="text-fd-text-muted text-xs">
@@ -727,19 +784,23 @@ function App() {
                     : 'animate-pulse bg-fd-green bg-opacity-20 border-fd-green'
                   : newMxmlImportIds.has(importItem.id)
                     ? 'animate-pulse bg-gradient-to-r from-yellow-400 to-orange-500 bg-opacity-30 border-2 border-yellow-400 shadow-lg transform scale-105 transition-all duration-1000'
-                    : ''
+                    : newMurexImportIds.has(importItem.id)
+                      ? 'animate-pulse bg-gradient-to-r from-purple-400 to-pink-500 bg-opacity-30 border-2 border-purple-400 shadow-lg transform scale-105 transition-all duration-1000'
+                      : ''
               }`}
             >
               <td className="font-medium">
                 {importItem.importName}
-                {(newImportIds.has(importItem.id) || newMxmlImportIds.has(importItem.id)) && (
+                {(newImportIds.has(importItem.id) || newMxmlImportIds.has(importItem.id) || newMurexImportIds.has(importItem.id)) && (
                   <div className="inline-flex items-center ml-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium animate-bounce mr-1 ${
-                      newMxmlImportIds.has(importItem.id) 
-                        ? 'bg-yellow-400 text-black' 
-                        : 'bg-fd-green text-black'
+                      newMurexImportIds.has(importItem.id)
+                        ? 'bg-purple-400 text-white'
+                        : newMxmlImportIds.has(importItem.id) 
+                          ? 'bg-yellow-400 text-black' 
+                          : 'bg-fd-green text-black'
                     }`}>
-                      {newMxmlImportIds.has(importItem.id) ? '⚡ MXML' : '✨ NEW'}
+                      {newMurexImportIds.has(importItem.id) ? '🚀 MUREX' : newMxmlImportIds.has(importItem.id) ? '⚡ MXML' : '✨ NEW'}
                     </span>
                     {importItem.importName.startsWith('LIVE-') && (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-600 text-white animate-pulse">

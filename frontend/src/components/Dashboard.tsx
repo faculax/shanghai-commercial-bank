@@ -167,17 +167,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         <StatCard
+          title="CSV Manually Imported"
+          value={stats.imported}
+          color={getStatusColor('imported')}
+          description="CSV imports ready"
+        />
+        <StatCard
           title="Pending Trades"
           value={stats.pendingTrades}
           color={getStatusColor('pending')}
           description="Awaiting consolidation"
           trend={demoConfig.enabled ? 'up' : 'stable'}
-        />
-        <StatCard
-          title="Imported"
-          value={stats.imported}
-          color={getStatusColor('imported')}
-          description="CSV imports ready"
         />
         <StatCard
           title="Consolidated"
@@ -198,6 +198,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ imports, demoConfig, onRef
           value={stats.pushedToMurex}
           color={getStatusColor('murex')}
           description="Processing complete"
+          trend={demoConfig.autoMurexEnabled ? 'up' : 'stable'}
         />
       </div>
 

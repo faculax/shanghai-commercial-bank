@@ -150,6 +150,50 @@ export const DemoConfigModal: React.FC<DemoConfigModalProps> = ({
                   </div>
                 )}
               </div>
+
+              <div className="border-t border-fd-border pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-fd-text font-medium">Auto Murex Push</span>
+                  <button
+                    onClick={() => handleChange('autoMurexEnabled', !config.autoMurexEnabled)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      config.autoMurexEnabled ? 'bg-fd-green' : 'bg-fd-border'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        config.autoMurexEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <p className="text-xs text-fd-text-muted mb-3">
+                  {config.autoMurexEnabled 
+                    ? 'Automatically push MXML files to Murex' 
+                    : 'Manual Murex push only'
+                  }
+                </p>
+
+                {config.autoMurexEnabled && (
+                  <div>
+                    <label className="block text-sm font-medium text-fd-text mb-1">
+                      Murex Push Interval (seconds)
+                    </label>
+                    <input
+                      type="number"
+                      value={config.murexPushIntervalSeconds}
+                      onChange={(e) => handleChange('murexPushIntervalSeconds', Number(e.target.value))}
+                      className="w-full px-3 py-2 bg-fd-dark border border-fd-border rounded-md text-fd-text focus:outline-none focus:ring-2 focus:ring-fd-green"
+                      min="10"
+                      max="600"
+                      step="1"
+                    />
+                    <p className="text-xs text-fd-text-muted mt-1">
+                      How often to auto-push MXML files to Murex (10 - 600 seconds)
+                    </p>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>

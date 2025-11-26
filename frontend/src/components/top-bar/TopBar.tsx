@@ -12,6 +12,8 @@ export const TopBar: React.FC = () => {
     groupingIntervalSeconds: 10,
     autoMxmlEnabled: false,
     mxmlGenerationIntervalSeconds: 20,
+    autoMurexEnabled: false,
+    murexPushIntervalSeconds: 30,
   });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
